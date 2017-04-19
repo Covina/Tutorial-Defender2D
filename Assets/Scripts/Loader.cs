@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Loader : MonoBehaviour {
 
@@ -9,7 +7,7 @@ public class Loader : MonoBehaviour {
 
 	void Awake ()
 	{
-
+		// check if the game manager is available
 		if (GameManager.instance == null) {
 			Instantiate(gameManager);
 		}

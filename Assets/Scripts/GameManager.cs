@@ -22,11 +22,13 @@ public class GameManager : MonoBehaviour {
 	// how many get spawned at a single time
 	public int enemiesPerSpawn;
 
+	// how long to wait between spawns
+	public float spawnDelayTime;
 
 	// keep track of enemies on the screen
 	private int currentEnemiesOnScreen = 0;
 	
-
+	// Create singleton
 	void Awake ()
 	{
 		if (instance == null) {
@@ -42,17 +44,54 @@ public class GameManager : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
+		StartCoroutine( ISpawnEnemy() );
 	}
 
 
-	void spawnEnemy ()
+
+	IEnumerator ISpawnEnemy ()
 	{
+		// check to make sure we should spawn enemies
+		if (enemiesPerSpawn > 0 && currentEnemiesOnScreen < totalEnemies) {
+
+			// spawn enemies
+			for (int i = 0; i < enemiesPerSpawn; i++) {
+
+				// honor the max number of enemies at any one time
+				if (currentEnemiesOnScreen < maxEnemiesOnScreen) {
+
+					GameObject newEnemy = Instantiate(enemies[1]) as GameObject;
+
+					newEnemy.transform.position = spawnPoint.transform.position;
+
+					currentEnemiesOnScreen++;
+
+				}
+				
+
+			}
+
+		}
+
+		yield return new WaitForSeconds(spawnDelayTime);
+		StartCoroutine(ISpawnEnemy());
+
 
 	}
+
+
+
+
+
+	// Update the number of enemies on the screen to allow more to spawn.
+	public void RemoveEnemyFromScreen ()
+	{
+		if (currentEnemiesOnScreen > 0) {
+
+			currentEnemiesOnScreen--;
+
+		}
+
+	}
+
 }
