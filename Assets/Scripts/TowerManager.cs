@@ -8,11 +8,13 @@ public class TowerManager : Singleton<TowerManager> {
 	// get a button type
 	private TowerButton towerButtonPressed;
 
+	private SpriteRenderer spriteRenderer;
+
 
 	// Use this for initialization
 	void Start () {
 
-
+		spriteRenderer = GetComponent<SpriteRenderer>();
 
 	}
 	
@@ -32,8 +34,17 @@ public class TowerManager : Singleton<TowerManager> {
 			// only place towers on build site locations
 			if (hit.collider.tag == "BuildSite") {
 
+				// change tag to avoid repeat placement
+				hit.collider.tag = "BuildSiteFull";
+
 				PlaceTower (hit);
 			}
+
+		}
+
+		if (spriteRenderer.enabled) {
+
+			FollowMouse();
 
 		}
 
@@ -45,8 +56,13 @@ public class TowerManager : Singleton<TowerManager> {
 
 		towerButtonPressed = towerSelected;
 
+		// enable the sprite for following the mouse
+		enableDragSprite(towerButtonPressed.DragSprite);
+
 	}
 
+
+	// Placing towers
 	public void PlaceTower (RaycastHit2D hit)
 	{
 
@@ -61,9 +77,36 @@ public class TowerManager : Singleton<TowerManager> {
 			// set new tower position to the hit position
 			newTower.transform.position = hit.transform.position;
 
+			// emove the tower from the mouse cursor
+			disableDragSprite();
+
 		}
 
 
 	}
+
+
+	public void FollowMouse ()
+	{
+		// move the TowerManager Transform object to where the mouse is (with attached sprite)
+		transform.position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+		transform.position = new Vector2(transform.position.x, transform.position.y);
+
+	}
+
+
+	public void enableDragSprite (Sprite sprite)
+	{
+		spriteRenderer.enabled = true;
+		spriteRenderer.sprite = sprite;
+	}
+
+
+	public void disableDragSprite ()
+	{
+		spriteRenderer.enabled = false;
+	}
+
+
 
 }
