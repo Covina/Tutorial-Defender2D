@@ -3,16 +3,16 @@
 public class Enemy : MonoBehaviour {
 
 	// which checkpoint to pathfind toward
-	public int targetPathNode = 0;
+	[SerializeField] private int targetPathNode = 0;
 
 	// the level exit location
-	public Transform exitPoint;
+	[SerializeField] private Transform exitPoint;
 
 	// store all checkpoints
-	public Transform[] wayPoints;
+	[SerializeField] private Transform[] wayPoints;
 
 	// control checks on navigation
-	public float navigationUpdate;
+	[SerializeField] private float navigationUpdate;
 
 	// unit speed
 	public float walkSpeed;
@@ -79,7 +79,7 @@ public class Enemy : MonoBehaviour {
 
 			Destroy(gameObject);
 
-			GameManager.instance.RemoveEnemyFromScreen();
+			GameManager.Instance.RemoveEnemyFromScreen();
 
 		}
 

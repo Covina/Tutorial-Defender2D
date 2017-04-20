@@ -2,45 +2,29 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GameManager : MonoBehaviour {
-
-
-	public static GameManager instance = null;
+public class GameManager : Singleton<GameManager> {
 
 	// hold our spawn point
-	public GameObject spawnPoint;
+	[SerializeField] private GameObject spawnPoint;
 
 	// hold our skeletons
-	public GameObject[] enemies;
+	[SerializeField] private GameObject[] enemies;
 
 	// enemy counter for increasing waves
-	public int maxEnemiesOnScreen;
+	[SerializeField] private int maxEnemiesOnScreen;
 
 	// enemy count in the wave
-	public int totalEnemies;
+	[SerializeField] private int totalEnemies;
 
 	// how many get spawned at a single time
-	public int enemiesPerSpawn;
+	[SerializeField] private int enemiesPerSpawn;
 
 	// how long to wait between spawns
-	public float spawnDelayTime;
+	[SerializeField] private float spawnDelayTime;
 
 	// keep track of enemies on the screen
 	private int currentEnemiesOnScreen = 0;
 	
-	// Create singleton
-	void Awake ()
-	{
-		if (instance == null) {
-			instance = this;
-		} else if (instance != this){
-			Destroy(gameObject);
-		}
-
-		DontDestroyOnLoad(gameObject);
-
-	}
-
 
 	// Use this for initialization
 	void Start () {
