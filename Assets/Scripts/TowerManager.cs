@@ -56,8 +56,12 @@ public class TowerManager : Singleton<TowerManager> {
 
 		towerButtonPressed = towerSelected;
 
-		// enable the sprite for following the mouse
-		enableDragSprite(towerButtonPressed.DragSprite);
+		// check to see if player can afford it
+		if (GameManager.Instance.CurrencyBalance >= towerButtonPressed.TowerObject.GetComponent<Tower> ().TowerCost) {
+
+			// enable the sprite for following the mouse
+			enableDragSprite (towerButtonPressed.DragSprite);
+		}
 
 	}
 
@@ -65,24 +69,37 @@ public class TowerManager : Singleton<TowerManager> {
 	// Placing towers
 	public void PlaceTower (RaycastHit2D hit)
 	{
-
+		// TODO - Add check if player can afford the tower
 
 		// check for UI and make sure a tower is selected
-		if (!EventSystem.current.IsPointerOverGameObject() && towerButtonPressed != null) {
+		if (!EventSystem.current.IsPointerOverGameObject () && towerButtonPressed != null) {
+
+				// instantiate the tower
+				GameObject newTower = Instantiate (towerButtonPressed.TowerObject);
+
+				// set new tower position to the hit position
+				newTower.transform.position = hit.transform.position;
+
+				// buy the tower
+				PurchaseTower(newTower.GetComponent<Tower>().TowerCost);
 
 
-			// instantiate the tower
-			GameObject newTower = Instantiate (towerButtonPressed.TowerObject);
-
-			// set new tower position to the hit position
-			newTower.transform.position = hit.transform.position;
-
-			// emove the tower from the mouse cursor
-			disableDragSprite();
+				// move the tower from the mouse cursor
+				disableDragSprite ();
 
 		}
 
 
+	}
+
+	// charge the currency for the tower
+	public void PurchaseTower (int cost)
+	{
+		// decrement the cost
+		GameManager.Instance.CurrencyBalance -= cost;
+
+		// Update the UI
+		GameManager.Instance.UpdateUI();
 	}
 
 

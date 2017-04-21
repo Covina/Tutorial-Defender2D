@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameManager : Singleton<GameManager> {
 
@@ -25,9 +26,84 @@ public class GameManager : Singleton<GameManager> {
 	// create list of Enemies
 	public List<Enemy> EnemyList = new List<Enemy>();
 
+	// ===============  UI =================
+
+	// how long to wait between spawns
+
+	[SerializeField] private int startingBalance = 10;
+	[SerializeField] private int currencyBalance;
+	[SerializeField] private Text currencyBalanceTextValue;
+
+	[SerializeField] private int totalWaves;
+	[SerializeField] private int currentWave = 0;
+	[SerializeField] private Text currentWaveTextValue;
+	[SerializeField] private int escapedEnemiesCount = 0;
+	[SerializeField] private Text escapedEnemiesTextValue;
+	[SerializeField] private int enemiesKilled = 0;
+
+	// which of our enemies to spawn
+	[SerializeField] private int spawnEnemyID = 0;
+
+
+	[SerializeField] private GameObject nextWaveButton;
+
+
+
+	// Getter for currency balance
+	public int CurrencyBalance {
+		get {
+			return currencyBalance;
+		}
+
+		set {
+			currencyBalance = value;
+		}
+	}
+
+
 	// Use this for initialization
 	void Start () {
+
+		// set currency balance value
+		currencyBalance = startingBalance;
+
+		// set currency balance in UI
+		currencyBalanceTextValue.text = currencyBalance.ToString();
+
+		// set current wave
+		currentWaveTextValue.text = currentWave.ToString();
+
+
+	}
+
+	// make button start the game and spawn enemies
+	public void StartWave() 
+	{
+		// increment wave number
+		currentWave++;
+
+		// disable the Next Wave button
+		nextWaveButton.SetActive(false);
+
+		// start spawning enemies
 		StartCoroutine( ISpawnEnemy() );
+
+		// Update the UI
+		UpdateUI();
+
+	}
+
+	public void UpdateUI ()
+	{
+		// Update Currency
+		currencyBalanceTextValue.text = currencyBalance.ToString();
+
+		// Update Wave
+		currentWaveTextValue.text = currentWave.ToString();
+
+		// Update Ecaped Enemies
+		escapedEnemiesTextValue.text = escapedEnemiesCount + "/" + totalEnemies;
+
 	}
 
 

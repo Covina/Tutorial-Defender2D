@@ -13,6 +13,9 @@ public class Tower : MonoBehaviour {
 	// define the projectile to use
 	[SerializeField] private Projectile projectile;
 
+	// define the Tower Cost
+	[SerializeField] private int towerCost;
+
 	// current enemy target
 	private Enemy targetEnemy = null;
 
@@ -20,6 +23,15 @@ public class Tower : MonoBehaviour {
 	private float attackTimeCounter;
 
 	private bool isAttacking = false;
+
+
+	// Getter for the Tower Cost
+	public int TowerCost {
+		get {
+			return towerCost;
+		}
+
+	}
 
 
 	// Use this for initialization
