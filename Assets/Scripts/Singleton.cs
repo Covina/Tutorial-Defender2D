@@ -6,15 +6,6 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour {
 
 	private static T instance;
 
-	public void Create ()
-	{
-
-
-
-
-	}
-
-
 	public static T Instance
 	{
 		get 

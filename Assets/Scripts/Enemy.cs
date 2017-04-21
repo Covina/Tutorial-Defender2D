@@ -21,18 +21,18 @@ public class Enemy : MonoBehaviour {
 	// unit speed
 	public float walkSpeed;
 
+	private float navigationTime = 0;
+
+	// Component variables
 	private Transform enemy;
 	private Collider2D enemyCollider;
 	private Animator animator;
 
-	private float navigationTime = 0;
 
-
-
-
+	// Keep track if this enemy is dead or alive
 	private bool isDead = false;
 
-
+	// Getter for isDead
 	public bool IsDead {
 
 		get {
@@ -45,7 +45,7 @@ public class Enemy : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 
-		
+		// Get Component variables
 		enemy = GetComponent<Transform>();
 		enemyCollider = GetComponent<Collider2D>();
 		animator = GetComponent<Animator>();
@@ -90,6 +90,34 @@ public class Enemy : MonoBehaviour {
 	}
 
 
+
+	public void EnemyHit (int hitpoints)
+	{
+		// check if we're at zero
+		if (healthPoints - hitpoints > 0) {
+
+			healthPoints -= hitpoints;
+
+			animator.Play("hurt");
+
+
+		} else {
+
+			// enemy is dead
+			Die();
+		}
+
+	}
+
+	// Kill the enemy
+	public void Die ()
+	{
+		isDead = true;
+		enemyCollider.enabled = false;
+		animator.SetTrigger("DieTrigger");
+	}
+
+
 	// to detect navigation changes as waypoints are hit
 	void OnTriggerEnter2D (Collider2D collider)
 	{
@@ -101,6 +129,7 @@ public class Enemy : MonoBehaviour {
 
 		} else if (collider.tag == "Finish") {
 
+			// enemy made it to the end alive, so remove it from the field
 			GameManager.Instance.UnregisterEnemy (this);
 
 		}  else if (collider.tag == "Projectile") {
@@ -116,34 +145,6 @@ public class Enemy : MonoBehaviour {
 		}
 
 
-	}
-
-
-	public void EnemyHit (int hitpoints)
-	{
-
-		if (healthPoints - hitpoints > 0) {
-
-			healthPoints -= hitpoints;
-
-			animator.Play("hurt");
-
-
-		} else {
-
-			// TODO - die animation
-			// TODO - Die method
-			Die();
-		}
-
-	}
-
-
-	public void Die ()
-	{
-		isDead = true;
-		enemyCollider.enabled = false;
-		animator.SetTrigger("DieTrigger");
 	}
 
 }
