@@ -28,6 +28,8 @@ public class Enemy : MonoBehaviour {
 		
 		enemy = GetComponent<Transform>();
 
+		// register the enemy
+		GameManager.Instance.RegisterEnemy(this);
 
 	}
 	
@@ -77,9 +79,7 @@ public class Enemy : MonoBehaviour {
 
 		} else if (collider.tag == "Finish") {
 
-			Destroy(gameObject);
-
-			GameManager.Instance.RemoveEnemyFromScreen();
+			GameManager.Instance.UnregisterEnemy(this);
 
 		}
 

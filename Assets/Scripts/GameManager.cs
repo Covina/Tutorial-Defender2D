@@ -22,9 +22,8 @@ public class GameManager : Singleton<GameManager> {
 	// how long to wait between spawns
 	[SerializeField] private float spawnDelayTime;
 
-	// keep track of enemies on the screen
-	private int currentEnemiesOnScreen = 0;
-	
+	// create list of Enemies
+	public List<Enemy> EnemyList = new List<Enemy>();
 
 	// Use this for initialization
 	void Start () {
@@ -36,19 +35,19 @@ public class GameManager : Singleton<GameManager> {
 	IEnumerator ISpawnEnemy ()
 	{
 		// check to make sure we should spawn enemies
-		if (enemiesPerSpawn > 0 && currentEnemiesOnScreen < totalEnemies) {
+		if (enemiesPerSpawn > 0 && EnemyList.Count < totalEnemies) {
 
 			// spawn enemies
 			for (int i = 0; i < enemiesPerSpawn; i++) {
 
-				// honor the max number of enemies at any one time
-				if (currentEnemiesOnScreen < maxEnemiesOnScreen) {
+				// honor the max number of enemies 
+				if (EnemyList.Count < maxEnemiesOnScreen) {
 
 					GameObject newEnemy = Instantiate(enemies[1]) as GameObject;
 
 					newEnemy.transform.position = spawnPoint.transform.position;
 
-					currentEnemiesOnScreen++;
+
 
 				}
 				
@@ -65,17 +64,36 @@ public class GameManager : Singleton<GameManager> {
 
 
 
-
-
-	// Update the number of enemies on the screen to allow more to spawn.
-	public void RemoveEnemyFromScreen ()
+	public void RegisterEnemy (Enemy enemy)
 	{
-		if (currentEnemiesOnScreen > 0) {
+		// add the enemy to the list
+		EnemyList.Add(enemy);
 
-			currentEnemiesOnScreen--;
+	}
+
+
+	public void UnregisterEnemy (Enemy enemy)
+	{
+		// Remove the enemy to the list
+		EnemyList.Remove(enemy);
+		Destroy(enemy.gameObject);
+	}
+
+	// delete all enemies (including killed ones)
+	public void DestroyAllEnemies ()
+	{
+
+		// loop through and destroy gameobjects
+		foreach (Enemy enemy in EnemyList) {
+
+			Destroy(enemy.gameObject);
 
 		}
 
+		// make it an empty list
+		EnemyList.Clear();
 	}
+
+
 
 }
