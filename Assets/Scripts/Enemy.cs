@@ -14,12 +14,32 @@ public class Enemy : MonoBehaviour {
 	// control checks on navigation
 	[SerializeField] private float navigationUpdate;
 
+	// control checks on navigation
+	[SerializeField] private int healthPoints;
+
+
 	// unit speed
 	public float walkSpeed;
 
 	private Transform enemy;
+	private Collider2D enemyCollider;
+	private Animator animator;
 
 	private float navigationTime = 0;
+
+
+
+
+	private bool isDead = false;
+
+
+	public bool IsDead {
+
+		get {
+			return isDead;
+		}
+
+	}
 
 
 	// Use this for initialization
@@ -27,6 +47,8 @@ public class Enemy : MonoBehaviour {
 
 		
 		enemy = GetComponent<Transform>();
+		enemyCollider = GetComponent<Collider2D>();
+		animator = GetComponent<Animator>();
 
 		// register the enemy
 		GameManager.Instance.RegisterEnemy(this);
@@ -37,7 +59,7 @@ public class Enemy : MonoBehaviour {
 	void Update ()
 	{
 
-		if (wayPoints != null) {
+		if (wayPoints != null && isDead != true) {
 
 			// add time increments
 			navigationTime += Time.deltaTime;
@@ -79,11 +101,49 @@ public class Enemy : MonoBehaviour {
 
 		} else if (collider.tag == "Finish") {
 
-			GameManager.Instance.UnregisterEnemy(this);
+			GameManager.Instance.UnregisterEnemy (this);
 
+		}  else if (collider.tag == "Projectile") {
+
+
+			// apply the damage
+			EnemyHit(collider.gameObject.GetComponent<Projectile>().AttackStrength);
+
+			// destroy the projectile
+			Destroy(collider.gameObject);
+			
+
+		}
+
+
+	}
+
+
+	public void EnemyHit (int hitpoints)
+	{
+
+		if (healthPoints - hitpoints > 0) {
+
+			healthPoints -= hitpoints;
+
+			animator.Play("hurt");
+
+
+		} else {
+
+			// TODO - die animation
+			// TODO - Die method
+			Die();
 		}
 
 	}
 
+
+	public void Die ()
+	{
+		isDead = true;
+		enemyCollider.enabled = false;
+		animator.SetTrigger("DieTrigger");
+	}
 
 }

@@ -35,7 +35,7 @@ public class Tower : MonoBehaviour {
 		attackTimeCounter -= Time.deltaTime;
 
 		// if we don't already have a target, go get one
-		if (targetEnemy == null) {
+		if (targetEnemy == null || targetEnemy.IsDead) {
 
 			// get nearest enemy
 			Enemy nearestEnemy = GetNearestEnemyInRange ();
