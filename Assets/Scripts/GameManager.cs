@@ -54,10 +54,12 @@ public class GameManager : Singleton<GameManager> {
 
 			}
 
+			yield return new WaitForSeconds(spawnDelayTime);
+			StartCoroutine(ISpawnEnemy());
+
 		}
 
-		yield return new WaitForSeconds(spawnDelayTime);
-		StartCoroutine(ISpawnEnemy());
+
 
 
 	}

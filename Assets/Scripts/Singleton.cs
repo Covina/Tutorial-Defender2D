@@ -25,7 +25,7 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour {
 					Destroy(FindObjectOfType<T>() );
 				}
 
-				DontDestroyOnLoad(FindObjectOfType<T>() );		
+				DontDestroyOnLoad( FindObjectOfType<T>() );		
 
 				return instance; 
 
