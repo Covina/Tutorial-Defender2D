@@ -17,7 +17,7 @@ public class GameManager : Singleton<GameManager> {
 	[SerializeField] private GameObject spawnPoint;
 
 	// hold our skeletons
-	[SerializeField] private GameObject[] enemies;
+	[SerializeField] private Enemy[] enemies;
 
 	// enemy count in the wave
 	[SerializeField] private int totalEnemies = 3;
@@ -266,7 +266,7 @@ public class GameManager : Singleton<GameManager> {
 				if(currentWave >= 3) enemyIndex = Random.Range(0,3);	// mix of skull, horns, arrows
 
 				// create the new enemy
-				GameObject newEnemy = Instantiate(enemies[ enemyIndex ]) as GameObject;
+				Enemy newEnemy = Instantiate(enemies[ enemyIndex ]) as Enemy;
 
 				// place it at the starting spot
 				newEnemy.transform.position = spawnPoint.transform.position;
@@ -324,19 +324,6 @@ public class GameManager : Singleton<GameManager> {
 	// delete all enemies (including killed ones)
 	public void DestroyAllEnemies ()
 	{
-
-//		Debug.Log("DestroyAllEnemies () :: SizeOf EnemyList [" + EnemyList.Count + "]");
-//
-//		// loop through and destroy gameobjects
-//		foreach (Enemy enemy in EnemyList) {
-//
-//			if (enemy.gameObject == null) {
-//				// do nothing
-//			} else {
-//				Destroy (enemy.gameObject);
-//			}
-//
-//		}
 
 		foreach (Enemy enemy in GameObject.FindObjectsOfType<Enemy>()) {
 
