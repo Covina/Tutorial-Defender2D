@@ -183,28 +183,53 @@ public class GameManager : Singleton<GameManager> {
 
 
 	// make button start the game and spawn enemies
-	public void StartWave() 
+	public void ActionButtonPressed() 
 	{
-		// increment wave number
-		currentWave++;
 
-		// reset the round escaped counter
-		RoundEscapedEnemies = 0;
+		switch (CurrentState) {
 
-		// Reset the kill counter
-		RoundEnemiesKilled = 0;
+		case GameStatus.LOSE:
+			RestartGame();
+			break;
 
-		// disable the Action button
-		actionButtonObject.SetActive(false);
+		case GameStatus.NEXT:
+			// increment wave number
+			currentWave++;
 
-		// Set game state to playing
-		CurrentState = GameStatus.PLAY;
+			// reset the round escaped counter
+			RoundEscapedEnemies = 0;
 
-		// start spawning enemies
-		StartCoroutine( ISpawnEnemy() );
+			// Reset the kill counter
+			RoundEnemiesKilled = 0;
 
-		// Update the UI
-		UpdateUI();
+			// disable the Action button
+			actionButtonObject.SetActive(false);
+
+			// Set game state to playing
+			CurrentState = GameStatus.PLAY;
+
+			// start spawning enemies
+			StartCoroutine( ISpawnEnemy() );
+
+			// Update the UI
+			UpdateUI();
+			break;
+
+		case GameStatus.PLAY:
+			RestartGame();
+			break;
+
+		case GameStatus.WIN:
+			RestartGame();
+			break;
+
+		default:
+			Debug.Log ("No currentState found for switch()");
+			break;
+		}
+
+
+
 
 	}
 
@@ -217,8 +242,14 @@ public class GameManager : Singleton<GameManager> {
 			// spawn enemies
 			for (int i = 0; i < TotalEnemies; i++) {
 
+				// Set the scaling enemies
+				int enemyIndex = 0;
+				if(currentWave == 1) enemyIndex = 0;					// all skulls
+				if(currentWave == 2) enemyIndex = Random.Range(0,2);	// mix of skull and horns
+				if(currentWave >= 3) enemyIndex = Random.Range(0,3);	// mix of skull, horns, arrows
+
 				// create the new enemy
-				GameObject newEnemy = Instantiate(enemies[ Random.Range(0,3) ]) as GameObject;
+				GameObject newEnemy = Instantiate(enemies[ enemyIndex ]) as GameObject;
 
 				// place it at the starting spot
 				newEnemy.transform.position = spawnPoint.transform.position;
@@ -328,7 +359,7 @@ public class GameManager : Singleton<GameManager> {
 		switch (CurrentState) {
 
 		case GameStatus.LOSE:
-			actionButtonText.text = "Play Again";
+			actionButtonText.text = "Try Again";
 			break;
 
 		case GameStatus.NEXT:
@@ -337,11 +368,10 @@ public class GameManager : Singleton<GameManager> {
 
 		case GameStatus.PLAY:
 			actionButtonText.text = "Start Game";
-			NewGameSettings();
 			break;
 
 		case GameStatus.WIN:
-			actionButtonText.text = "Play";
+			actionButtonText.text = "Play Again";
 			break;
 
 		default:
@@ -366,13 +396,12 @@ public class GameManager : Singleton<GameManager> {
 		// total up enemy states
 		if ((RoundEnemiesKilled + RoundEscapedEnemies) == TotalEnemies) {
 
-			Debug.Log("IsWaveOver() = Yes");
+			//Debug.Log("IsWaveOver() = Yes");
 
 			// increase total enemies to spawn
 			TotalEnemies += 1;
 
 			// clean up dead bodies
-			//RemoveDeadEnemies ();
 			DestroyAllEnemies();
 
 			// update the game state
@@ -391,12 +420,12 @@ public class GameManager : Singleton<GameManager> {
 	{
 
 		if (totalEscapedEnemiesCount >= TotalEscapedEnemiesLimit) {
-			Debug.Log ("SetCurrentGamestate () :: escaped exceeded limit [" + totalEscapedEnemiesCount + " > [" + TotalEscapedEnemiesLimit + "]");
+			//Debug.Log ("SetCurrentGamestate () :: escaped exceeded limit [" + totalEscapedEnemiesCount + " > [" + TotalEscapedEnemiesLimit + "]");
 
 			// set to lose
 			CurrentState = GameStatus.LOSE;
 
-		} else if (currentWave >= totalWaves) {
+		} else if (currentWave > totalWaves) {
 
 			// set to win
 			CurrentState = GameStatus.WIN;
@@ -412,31 +441,6 @@ public class GameManager : Singleton<GameManager> {
 		}
 
 	}
-
-
-//
-//	public void RemoveDeadEnemies ()
-//	{
-//
-//		Debug.Log ("Count in EnemyList [" + EnemyList.Count + "]");
-//
-//		if (EnemyList.Count > 0) {
-//		
-//			for (int i = 0; i < EnemyList.Count; i++) {
-//
-//				// get rid of the game object if it exists
-////				if (EnemyList [i].gameObject) {
-////					Destroy (EnemyList [i].gameObject);
-////				}
-//
-//				// remove it from the List<>
-//				UnregisterEnemy (EnemyList[i]);
-//
-//
-//			}
-//
-//		}
-//	}
 
 
 	// support earning money through killing enemies
@@ -472,13 +476,15 @@ public class GameManager : Singleton<GameManager> {
 
 
 
-	private void NewGameSettings() {
+	private void RestartGame() {
+
+		Debug.Log("RestartGame() called");
 
 		// reset the starting enemy count to 3
 		TotalEnemies = 3;
 
-		// zero the current wave
-		currentWave = 0;
+		// set back to first wave
+		currentWave = 1;
 
 		// zero the round enemies killed
 		RoundEnemiesKilled = 0;
@@ -500,6 +506,21 @@ public class GameManager : Singleton<GameManager> {
 
 		// rename all build sites so they are buildable again
 		TowerManager.Instance.RenameTagsBuildSites();
+
+		// Get rid of lingering tower selections
+		TowerManager.Instance.towerButtonPressed = null;
+
+		// disable the Action button
+		actionButtonObject.SetActive(false);
+
+		// Set game state to playing
+		CurrentState = GameStatus.PLAY;
+
+		// Update the UI
+		UpdateUI();
+
+		// start spawning enemies
+		StartCoroutine( ISpawnEnemy() );
 
 	}
 

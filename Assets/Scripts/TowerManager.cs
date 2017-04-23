@@ -22,7 +22,11 @@ public class TowerManager : Singleton<TowerManager> {
 	// Use this for initialization
 	void Start () {
 
+		// get access to the sprite renderer for the selected tower buttons
 		spriteRenderer = GetComponent<SpriteRenderer>();
+
+		// disable to start
+		spriteRenderer.enabled = false;
 
 		buildTile = GetComponent<Collider2D>();
 
@@ -99,6 +103,8 @@ public class TowerManager : Singleton<TowerManager> {
 	// Destroy all towers on game reset
 	public void DestroyAllTowers ()
 	{
+		Debug.Log("DestroyAllTowers() called");
+
 		foreach (Tower tower in TowerList) {
 
 			Destroy(tower.gameObject);
@@ -141,6 +147,8 @@ public class TowerManager : Singleton<TowerManager> {
 			// buy the tower
 			PurchaseTower (newTower.TowerCost);
 
+			// Regsiter the tower for later deletion
+			RegisterTower (newTower);
 
 			// move the tower from the mouse cursor
 			disableDragSprite ();
@@ -165,14 +173,14 @@ public class TowerManager : Singleton<TowerManager> {
 
 	}
 
-
+	// have the selected tower follow the cursor
 	public void enableDragSprite (Sprite sprite)
 	{
 		spriteRenderer.enabled = true;
 		spriteRenderer.sprite = sprite;
 	}
 
-
+	// disable the tower cursor
 	public void disableDragSprite ()
 	{
 		spriteRenderer.enabled = false;

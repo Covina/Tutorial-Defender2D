@@ -153,7 +153,7 @@ public class Enemy : MonoBehaviour {
 		} else if (collider.tag == "Projectile") {
 
 			if (!gameObject) {
-				Debug.Log("NRE - OnTrigger() this enemy does nto exist");
+				Debug.Log("NRE - OnTrigger() this enemy does not exist");
 			}
 			if (!collider) {
 				Debug.Log("NRE - OnTrigger() this collider object does not exist");

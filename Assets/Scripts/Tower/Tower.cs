@@ -165,7 +165,7 @@ public class Tower : MonoBehaviour {
 		}
 
 		// Sanity check in case things are bad
-		if (projectile != null || currEnemy == null) {
+		if (projectile != null || currEnemy == null || currEnemy.IsDead) {
 
 			Destroy(projectile);
 
