@@ -8,7 +8,7 @@ public enum ProjectileTypeEnum {
 public class Projectile : MonoBehaviour {
 
 	// damage of the projectile
-	[SerializeField] private int attackStrength;
+	[SerializeField] private int attackStrength = 1;
 
 
 	[SerializeField] private ProjectileTypeEnum projectileType;

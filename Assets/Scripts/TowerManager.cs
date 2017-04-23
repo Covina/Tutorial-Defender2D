@@ -6,7 +6,7 @@ using UnityEngine.EventSystems;
 public class TowerManager : Singleton<TowerManager> {
 
 	// get a button type
-	private TowerButton towerButtonPressed;
+	public TowerButton towerButtonPressed { get; set; }
 
 	private SpriteRenderer spriteRenderer;
 
@@ -56,12 +56,8 @@ public class TowerManager : Singleton<TowerManager> {
 
 		towerButtonPressed = towerSelected;
 
-		// check to see if player can afford it
-		if (GameManager.Instance.CurrencyBalance >= towerButtonPressed.TowerObject.GetComponent<Tower> ().TowerCost) {
-
-			// enable the sprite for following the mouse
-			enableDragSprite (towerButtonPressed.DragSprite);
-		}
+		// enable the sprite for following the mouse
+		enableDragSprite (towerButtonPressed.DragSprite);
 
 	}
 
@@ -74,6 +70,10 @@ public class TowerManager : Singleton<TowerManager> {
 		// check for UI and make sure a tower is selected
 		if (!EventSystem.current.IsPointerOverGameObject () && towerButtonPressed != null) {
 
+
+			// check to see if player can afford it
+			if (GameManager.Instance.CurrencyBalance >= towerButtonPressed.TowerObject.GetComponent<Tower> ().TowerCost) {
+
 				// instantiate the tower
 				GameObject newTower = Instantiate (towerButtonPressed.TowerObject);
 
@@ -81,12 +81,12 @@ public class TowerManager : Singleton<TowerManager> {
 				newTower.transform.position = hit.transform.position;
 
 				// buy the tower
-				PurchaseTower(newTower.GetComponent<Tower>().TowerCost);
+				PurchaseTower (newTower.GetComponent<Tower> ().TowerCost);
 
 
 				// move the tower from the mouse cursor
 				disableDragSprite ();
-
+			}
 		}
 
 
@@ -96,10 +96,7 @@ public class TowerManager : Singleton<TowerManager> {
 	public void PurchaseTower (int cost)
 	{
 		// decrement the cost
-		GameManager.Instance.CurrencyBalance -= cost;
-
-		// Update the UI
-		GameManager.Instance.UpdateUI();
+		GameManager.Instance.SubtractCurrency(cost);
 	}
 
 
