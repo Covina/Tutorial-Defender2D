@@ -80,6 +80,10 @@ public class GameManager : Singleton<GameManager> {
 	// to store the game state; init at play
 	private GameStatus currentState = GameStatus.PLAY;
 
+	// get the Audio source
+	private AudioSource audioSource;
+
+
 
 	// Getter/Setter for Current State enum
 	public GameStatus CurrentState {
@@ -156,6 +160,15 @@ public class GameManager : Singleton<GameManager> {
 	}
 
 
+	public AudioSource MyAudioSource {
+
+		get {
+			return audioSource;
+		}
+
+	}
+
+
 
 	// Use this for initialization
 	void Start () {
@@ -168,6 +181,10 @@ public class GameManager : Singleton<GameManager> {
 
 		// set current wave
 		currentWaveTextValue.text = currentWave.ToString();
+
+		// get access to the game manager audio source component
+		audioSource = GetComponent<AudioSource>();
+
 
 		// default button to "Start Game" at the beginning
 		ShowMenu();
@@ -360,6 +377,7 @@ public class GameManager : Singleton<GameManager> {
 
 		case GameStatus.LOSE:
 			actionButtonText.text = "Try Again";
+			GameManager.Instance.MyAudioSource.PlayOneShot (AudioManager.Instance.SFXGameOver);
 			break;
 
 		case GameStatus.NEXT:
@@ -372,6 +390,7 @@ public class GameManager : Singleton<GameManager> {
 
 		case GameStatus.WIN:
 			actionButtonText.text = "Play Again";
+			GameManager.Instance.MyAudioSource.PlayOneShot (AudioManager.Instance.SFXGameOver);
 			break;
 
 		default:
@@ -521,6 +540,9 @@ public class GameManager : Singleton<GameManager> {
 
 		// start spawning enemies
 		StartCoroutine( ISpawnEnemy() );
+
+		// play new game starting sound
+		audioSource.PlayOneShot(AudioManager.Instance.SFXNewGame);
 
 	}
 

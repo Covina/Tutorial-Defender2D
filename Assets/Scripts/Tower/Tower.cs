@@ -126,6 +126,22 @@ public class Tower : MonoBehaviour {
 		Projectile newProjectile = Instantiate (projectile) as Projectile;
 		newProjectile.transform.localPosition = transform.localPosition;
 
+		// Play the right sound effect
+		if (newProjectile.ProjectileType == ProjectileTypeEnum.arrow) {
+
+			GameManager.Instance.MyAudioSource.PlayOneShot (AudioManager.Instance.SFXArrow);
+
+		} else if (newProjectile.ProjectileType == ProjectileTypeEnum.fireball) {
+
+			GameManager.Instance.MyAudioSource.PlayOneShot (AudioManager.Instance.SFXFireball);
+
+		} else if (newProjectile.ProjectileType == ProjectileTypeEnum.rock) {
+
+			GameManager.Instance.MyAudioSource.PlayOneShot (AudioManager.Instance.SFXRock);
+		}
+
+
+
 		// destroy projectile it if target is N/A
 		if (currEnemy == null) {
 			Destroy (newProjectile);

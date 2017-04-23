@@ -102,7 +102,7 @@ public class Enemy : MonoBehaviour {
 			healthPoints -= hitpoints;
 
 			animator.Play("hurt");
-
+			GameManager.Instance.MyAudioSource.PlayOneShot( AudioManager.Instance.SFXHit);
 
 		} else {
 
@@ -118,6 +118,8 @@ public class Enemy : MonoBehaviour {
 		isDead = true;
 		enemyCollider.enabled = false;
 		animator.SetTrigger("DieTrigger");
+		GameManager.Instance.MyAudioSource.PlayOneShot( AudioManager.Instance.SFXDeath);
+
 
 		// reward player for killing the enemy
 		GameManager.Instance.AddCurrency(currencyReward);

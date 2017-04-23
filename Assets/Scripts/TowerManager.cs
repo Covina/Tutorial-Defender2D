@@ -147,6 +147,9 @@ public class TowerManager : Singleton<TowerManager> {
 			// buy the tower
 			PurchaseTower (newTower.TowerCost);
 
+			// tower placed SFX
+			GameManager.Instance.MyAudioSource.PlayOneShot( AudioManager.Instance.SFXTowerBuilt);
+
 			// Regsiter the tower for later deletion
 			RegisterTower (newTower);
 
