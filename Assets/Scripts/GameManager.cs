@@ -23,7 +23,7 @@ public class GameManager : Singleton<GameManager> {
 	[SerializeField] private int totalEnemies = 3;
 
 	// how many get spawned at a single time
-	[SerializeField] private int enemiesPerSpawn;
+//	[SerializeField] private int enemiesPerSpawn;
 
 	// how long to wait between spawns
 	[SerializeField] private float spawnDelayTime;
@@ -34,31 +34,54 @@ public class GameManager : Singleton<GameManager> {
 	// Total waves available in the game
 	[SerializeField] private int totalWaves;
 
+	// Total Enemies Killed in this round
+	private int roundEnemiesKilled = 0;
+
+	// Total Enemies Killed throughout the game
 	private int totalEnemiesKilled = 0;
+
+	// How many enemies escaped in that one Wave?
 	private int roundEscapedEnemies = 0;
+
+	// How many enemies have escaped in total?
 	private int totalEscapedEnemiesCount = 0;
+
+	// How many total escaped enemies are we allowing before player loses?
 	private int totalEscapedEnemiesLimit = 10;
 
 
 	// which of our enemies to spawn
-	[SerializeField] private int spawnEnemyID = 0;
+	private int spawnEnemyID = 0;
 
+
+	// Starting cash for the player
 	[SerializeField] private int startingBalance = 10;
-	[SerializeField] private int currencyBalance;
 
-		// ===============  UI =================
+	// Store their current balance
+	private int currencyBalance;
+
+	// ===============  UI =================
+
+	// their displayed currency balance value text component
 	[SerializeField] private Text currencyBalanceTextValue;
+
+	// the displayed current Wave value text component
 	[SerializeField] private Text currentWaveTextValue;
 
+	// The displayed current escaped enemies this round text component
 	[SerializeField] private Text escapedEnemiesTextValue;
-	[SerializeField] private Text nextWaveText;
-	[SerializeField] private GameObject nextWaveButton;
+
+
+	[SerializeField] private Text actionButtonText;
+	[SerializeField] private GameObject actionButtonObject;
+
+
 
 	// to store the game state; init at play
 	private GameStatus currentState = GameStatus.PLAY;
 
 
-
+	// Getter/Setter for Current State enum
 	public GameStatus CurrentState {
 		get {
 			return currentState;
@@ -68,7 +91,7 @@ public class GameManager : Singleton<GameManager> {
 		}
 	}
 
-	// Getter for currency balance
+	// Getter/Setter for currency balance
 	public int CurrencyBalance {
 		get {
 			return currencyBalance;
@@ -100,6 +123,17 @@ public class GameManager : Singleton<GameManager> {
 	}
 
 	// Getter for totalEnemiesKilled
+	public int RoundEnemiesKilled {
+		get {
+			return roundEnemiesKilled;
+		}
+		set {
+			roundEnemiesKilled = value;
+		}
+		
+	}
+
+	// Getter for totalEnemiesKilled
 	public int TotalEnemiesKilled {
 		get {
 			return totalEnemiesKilled;
@@ -110,12 +144,21 @@ public class GameManager : Singleton<GameManager> {
 		
 	}
 
+	// Getter for totalEnemies
+	public int TotalEnemies {
+		get {
+			return totalEnemies;
+		}
+		set {
+			totalEnemies = value;
+		}
+
+	}
+
+
 
 	// Use this for initialization
 	void Start () {
-
-		// default button to "Start Game" at the beginning
-		ShowMenu();
 
 		// set currency balance value
 		currencyBalance = startingBalance;
@@ -126,14 +169,16 @@ public class GameManager : Singleton<GameManager> {
 		// set current wave
 		currentWaveTextValue.text = currentWave.ToString();
 
+		// default button to "Start Game" at the beginning
+		ShowMenu();
+
 	}
 
+	// Update function
 	public void Update ()
 	{
 		HandleEscapeKey();
 	}
-
-
 
 
 	// make button start the game and spawn enemies
@@ -145,8 +190,13 @@ public class GameManager : Singleton<GameManager> {
 		// reset the round escaped counter
 		RoundEscapedEnemies = 0;
 
-		// disable the Next Wave button
-		nextWaveButton.SetActive(false);
+		// Reset the kill counter
+		RoundEnemiesKilled = 0;
+
+		// disable the Action button
+		actionButtonObject.SetActive(false);
+
+		// Set game state to playing
 		CurrentState = GameStatus.PLAY;
 
 		// start spawning enemies
@@ -157,46 +207,50 @@ public class GameManager : Singleton<GameManager> {
 
 	}
 
-
+	// Spawn the enemies
 	IEnumerator ISpawnEnemy ()
 	{
 		// check to make sure we should spawn enemies
-		if (enemiesPerSpawn > 0 && EnemyList.Count < totalEnemies) {
+		if (TotalEnemies > 0 && EnemyList.Count < TotalEnemies) {
 
 			// spawn enemies
-			for (int i = 0; i < enemiesPerSpawn; i++) {
+			for (int i = 0; i < TotalEnemies; i++) {
 
-				// honor the max number of enemies 
-				if (EnemyList.Count < totalEnemies) {
+				GameObject newEnemy = Instantiate(enemies[ Random.Range(0,3) ]) as GameObject;
 
-					GameObject newEnemy = Instantiate(enemies[ Random.Range(0,3) ]) as GameObject;
+				newEnemy.transform.position = spawnPoint.transform.position;
 
-					newEnemy.transform.position = spawnPoint.transform.position;
+				// add the new enemy to the list
+				RegisterEnemy(newEnemy.GetComponent<Enemy>());
 
-				}
-
+				// delay between spawns to space them out.
+				yield return new WaitForSeconds(spawnDelayTime);
 			}
 
-			yield return new WaitForSeconds(spawnDelayTime);
+			// recursive loop until we're full
 			StartCoroutine(ISpawnEnemy());
 
 		}
 
 	}
 
+
+	// Update all the important UI components
 	public void UpdateUI ()
 	{
-		// Update Currency
+		// Update Currency balanec
 		currencyBalanceTextValue.text = currencyBalance.ToString();
 
-		// Update Wave
+		// Update Wave Number
 		currentWaveTextValue.text = currentWave.ToString();
 
-		// Update Ecaped Enemies
-		escapedEnemiesTextValue.text = RoundEscapedEnemies + "/" + totalEnemies;
+		// Update Ecaped Enemies within this Round
+		escapedEnemiesTextValue.text = RoundEscapedEnemies + "/" + TotalEnemies;
 
 	}
 
+
+	// Add the enemy to the List
 	public void RegisterEnemy (Enemy enemy)
 	{
 		// add the enemy to the list
@@ -204,13 +258,14 @@ public class GameManager : Singleton<GameManager> {
 
 	}
 
-
+	// Remove the enemy to the List
 	public void UnregisterEnemy (Enemy enemy)
 	{
 		// Remove the enemy to the list
 		EnemyList.Remove(enemy);
 		Destroy(enemy.gameObject);
 	}
+
 
 	// delete all enemies (including killed ones)
 	public void DestroyAllEnemies ()
@@ -219,7 +274,9 @@ public class GameManager : Singleton<GameManager> {
 		// loop through and destroy gameobjects
 		foreach (Enemy enemy in EnemyList) {
 
-			Destroy(enemy.gameObject);
+			if (enemy.gameObject != null) {
+				Destroy (enemy.gameObject);
+			}
 
 		}
 
@@ -228,54 +285,46 @@ public class GameManager : Singleton<GameManager> {
 	}
 
 
-	// keep track of ewscaped enemies
-	public void EnemyEscaped ()
+	// Handle an escaped enemy
+	public void EnemyEscaped (Enemy enemy)
 	{
-		// Log the escaped enemy
+		// Add to this rounds count of escaped enemies
 		roundEscapedEnemies++;
+
+		// Add to this escaped enemy to grand total
 		totalEscapedEnemiesCount++;
+
+		UnregisterEnemy (enemy);
+
+		// Update the UI to reflect newly escaped enemy.
 		UpdateUI();
+
+		// check it Wave is over
 		IsWaveOver ();
 
 	}
 
 
-	// support earning money through killing enemies
-	public void AddCurrency (int amount)
-	{
-		// update the amount
-		CurrencyBalance += amount;
-
-	}
-
-	// support spending money through buying towers
-	public void SubtractCurrency (int amount)
-	{
-		// update the amount
-		CurrencyBalance -= amount;
-
-	}
-
-
+	// Control what Action button to display
 	public void ShowMenu ()
 	{
 
 		switch (CurrentState) {
 
 		case GameStatus.LOSE:
-			nextWaveText.text = "Play Again";
+			actionButtonText.text = "Play Again";
 			break;
 
 		case GameStatus.NEXT:
-			nextWaveText.text = "Next Wave";
+			actionButtonText.text = "Next Wave";
 			break;
 
 		case GameStatus.PLAY:
-			nextWaveText.text = "Start Game";
+			actionButtonText.text = "Start Game";
 			break;
 
 		case GameStatus.WIN:
-			nextWaveText.text = "Play";
+			actionButtonText.text = "Play";
 			break;
 
 		default:
@@ -285,39 +334,29 @@ public class GameManager : Singleton<GameManager> {
 
 
 		// turn it on.
-		nextWaveButton.SetActive(true);
+		actionButtonObject.SetActive(true);
 
 	}
 
-
-
-	private void HandleEscapeKey ()
-	{
-
-		if (Input.GetKeyDown (KeyCode.Escape)) {
-
-			// drop the selected tower on cursor
-			TowerManager.Instance.disableDragSprite();
-			TowerManager.Instance.towerButtonPressed = null;
-
-
-		}
-
-	}
 
 	// check to see if current wave is over
 	public void IsWaveOver ()
 	{
+
+		Debug.Log("IsWaveOver() :: RoundEnemiesKilled [" + RoundEnemiesKilled + "] + RoundEscapedEnemies [" + RoundEscapedEnemies + "] == TotalEnemies [" + TotalEnemies + "]");
+
+
 		// total up enemy states
-		if ((TotalEnemiesKilled + RoundEscapedEnemies) == totalEnemies) {
+		if ((RoundEnemiesKilled + RoundEscapedEnemies) == TotalEnemies) {
 
-			Debug.Log("IsWaveOver() = yes");
+			Debug.Log("IsWaveOver() = Yes");
 
-			// increase total enemies
-			totalEnemies++;
+			// increase total enemies to spawn
+			TotalEnemies += 1;
 
 			// clean up dead bodies
-			RemoveDeadEnemies ();
+			//RemoveDeadEnemies ();
+			DestroyAllEnemies();
 
 			// update the game state
 			SetCurrentGamestate();
@@ -358,21 +397,61 @@ public class GameManager : Singleton<GameManager> {
 	}
 
 
+//
+//	public void RemoveDeadEnemies ()
+//	{
+//
+//		Debug.Log ("Count in EnemyList [" + EnemyList.Count + "]");
+//
+//		if (EnemyList.Count > 0) {
+//		
+//			for (int i = 0; i < EnemyList.Count; i++) {
+//
+//				// get rid of the game object if it exists
+////				if (EnemyList [i].gameObject) {
+////					Destroy (EnemyList [i].gameObject);
+////				}
+//
+//				// remove it from the List<>
+//				UnregisterEnemy (EnemyList[i]);
+//
+//
+//			}
+//
+//		}
+//	}
 
-	public void RemoveDeadEnemies ()
+
+	// support earning money through killing enemies
+	public void AddCurrency (int amount)
+	{
+		// update the amount
+		CurrencyBalance += amount;
+
+	}
+
+	// support spending money through buying towers
+	public void SubtractCurrency (int amount)
+	{
+		// update the amount
+		CurrencyBalance -= amount;
+
+	}
+
+
+	// Allow Escape key to drop the selected tower.
+	private void HandleEscapeKey ()
 	{
 
-		Debug.Log ("Count in EnemyList [" + EnemyList.Count + "]");
+		if (Input.GetKeyDown (KeyCode.Escape)) {
 
-		if (EnemyList.Count > 0) {
-		
-			for (int i = 0; i< EnemyList.Count; i++) {
-
-				UnregisterEnemy (EnemyList[i]);
-
-			}
+			// drop the selected tower on cursor
+			TowerManager.Instance.disableDragSprite();
+			TowerManager.Instance.towerButtonPressed = null;
 
 		}
+
 	}
+
 
 }

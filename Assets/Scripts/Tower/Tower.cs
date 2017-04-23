@@ -92,13 +92,13 @@ public class Tower : MonoBehaviour {
 	void FixedUpdate ()
 	{
 		if (isAttacking) {
-			Attack();
+			Attack(targetEnemy);
 		}
 
 	}
 
 
-	public void Attack ()
+	public void Attack (Enemy currEnemy)
 	{
 
 		isAttacking = false;
@@ -107,13 +107,13 @@ public class Tower : MonoBehaviour {
 		Projectile newProjectile = Instantiate (projectile) as Projectile;
 		newProjectile.transform.localPosition = transform.localPosition;
 
-		// destroy it if target is N/A
-		if (targetEnemy == null) {
+		// destroy projectile it if target is N/A
+		if (currEnemy == null) {
 			Destroy (newProjectile);
 		} else {
 			
 			// TODO - move projectile to enemy
-			StartCoroutine ( MoveProjectile(newProjectile) );
+			StartCoroutine ( MoveProjectile(newProjectile, currEnemy) );
 
 		}
 
@@ -121,14 +121,14 @@ public class Tower : MonoBehaviour {
 
 
 
-	IEnumerator MoveProjectile (Projectile projectile)
+	IEnumerator MoveProjectile (Projectile projectile, Enemy currEnemy)
 	{
 
 		// if the enemy is far enough away, the projectile exists, and the enemy exists.
-		while (getTargetDistance (targetEnemy) > 0.20f && projectile != null && targetEnemy != null) {
+		while (getTargetDistance (currEnemy) > 0.20f && projectile != null && currEnemy != null) {
 
 			// find the direction, subtract target from source
-			var dir = targetEnemy.transform.localPosition - transform.localPosition;
+			var dir = currEnemy.transform.localPosition - transform.localPosition;
 
 			// get Tangent and convert from radians to degrees
 			var angleDirection = Mathf.Atan2 (dir.y, dir.x) * Mathf.Rad2Deg;
@@ -137,14 +137,14 @@ public class Tower : MonoBehaviour {
 			projectile.transform.rotation = Quaternion.AngleAxis (angleDirection, Vector3.forward);
 
 			// move the projectile toward the target
-			projectile.transform.localPosition = Vector2.MoveTowards (projectile.transform.localPosition, targetEnemy.transform.localPosition, 5f * Time.deltaTime);
+			projectile.transform.localPosition = Vector2.MoveTowards (projectile.transform.localPosition, currEnemy.transform.localPosition, 5f * Time.deltaTime);
 
 			yield return null;
 
 		}
 
 		// Sanity check in case things are bad
-		if (projectile != null || targetEnemy == null) {
+		if (projectile != null || currEnemy == null) {
 
 			Destroy(projectile);
 
@@ -189,7 +189,7 @@ public class Tower : MonoBehaviour {
 		foreach (Enemy enemy in GameManager.Instance.EnemyList) {
 
 			// measure the distance
-			if (Vector2.Distance (transform.localPosition, enemy.transform.localPosition) <= attackDistanceRadius) {
+			if (enemy != null && Vector2.Distance (transform.localPosition, enemy.transform.localPosition) <= attackDistanceRadius) {
 
 				enemiesInRange.Add(enemy);
 			}

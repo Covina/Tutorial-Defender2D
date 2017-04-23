@@ -124,6 +124,7 @@ public class Enemy : MonoBehaviour {
 
 		// record the enemy being killed
 		//GameManager.Instance.UnregisterEnemy (this);
+		GameManager.Instance.RoundEnemiesKilled += 1;
 		GameManager.Instance.TotalEnemiesKilled += 1;
 
 		// now check if wae is over
@@ -145,8 +146,9 @@ public class Enemy : MonoBehaviour {
 		} else if (collider.tag == "Finish") {
 
 			// enemy made it to the end alive, so remove it from the field
-			GameManager.Instance.UnregisterEnemy (this);
-			GameManager.Instance.EnemyEscaped ();
+			GameManager.Instance.EnemyEscaped (this);
+//			GameManager.Instance.UnregisterEnemy (this);
+
 
 		} else if (collider.tag == "Projectile") {
 
