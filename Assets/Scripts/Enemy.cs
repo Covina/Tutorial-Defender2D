@@ -53,8 +53,8 @@ public class Enemy : MonoBehaviour {
 		enemyCollider = GetComponent<Collider2D>();
 		animator = GetComponent<Animator>();
 
-		// register the enemy
-		GameManager.Instance.RegisterEnemy(this);
+		// register this enemy
+		GameManager.Instance.RegisterEnemy(this, "Start() in Enemy.cs");
 
 	}
 	

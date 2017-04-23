@@ -7,8 +7,12 @@ public class Tower : MonoBehaviour {
 	// attack rate
 	[SerializeField] private float timeBetweenAttacks;
 
+
 	// how far the tower can attack
-	[SerializeField] private float attackDistanceRadius;
+	[SerializeField] private float minAttackDistanceRadius;
+
+	// how far the tower can attack
+	[SerializeField] private float maxAttackDistanceRadius;
 
 	// define the projectile to use
 	[SerializeField] private Projectile projectile;
@@ -22,6 +26,7 @@ public class Tower : MonoBehaviour {
 	// collecting time between attacks
 	private float attackTimeCounter;
 
+	// store state of whether the tower is attacking
 	private bool isAttacking = false;
 
 
@@ -53,30 +58,39 @@ public class Tower : MonoBehaviour {
 			Enemy nearestEnemy = GetNearestEnemyInRange ();
 
 			// is the nearest enemy within our attack radius?
-			if (nearestEnemy != null && Vector2.Distance (transform.position, nearestEnemy.transform.position) <= attackDistanceRadius) {
+			if (nearestEnemy != null && Vector2.Distance (transform.position, nearestEnemy.transform.position) <= maxAttackDistanceRadius) {
 
 				// if so, set the target.
 				targetEnemy = nearestEnemy;
+
+				//Debug.Log("Target acquired: " + targetEnemy.gameObject.name);
 
 			}
 
 		} else {
 
+			// === We already have a target ===
+
 			// if its attack time...
 			if (attackTimeCounter <= 0) {
+
+				// set attacking state to true
 				isAttacking = true;
 
-				// reset the attacck timer
-				attackTimeCounter = timeBetweenAttacks;
+				// reset the attack timer
+//				attackTimeCounter = timeBetweenAttacks;
 
 			} else {
 
+				// its not attack time, set it to false;
 				isAttacking = false;
 
 			}
 
 			// check the objects current distance to see if we can still attack it
-			if (Vector2.Distance (transform.position, targetEnemy.transform.position) > attackDistanceRadius) {
+			if (Vector2.Distance (transform.position, targetEnemy.transform.position) > maxAttackDistanceRadius) {
+
+				Debug.Log("Target enemy just went out of range.");
 
 				// clear target enemy
 				targetEnemy = null;
@@ -101,7 +115,12 @@ public class Tower : MonoBehaviour {
 	public void Attack (Enemy currEnemy)
 	{
 
+		// set to false since we're attacking
 		isAttacking = false;
+
+		// Reset attack timer now that we've actually attacked
+		attackTimeCounter = timeBetweenAttacks;
+
 
 		// make the projectile
 		Projectile newProjectile = Instantiate (projectile) as Projectile;
@@ -117,6 +136,8 @@ public class Tower : MonoBehaviour {
 
 		}
 
+
+
 	}
 
 
@@ -125,7 +146,7 @@ public class Tower : MonoBehaviour {
 	{
 
 		// if the enemy is far enough away, the projectile exists, and the enemy exists.
-		while (getTargetDistance (currEnemy) > 0.20f && projectile != null && currEnemy != null) {
+		while (getTargetDistance (currEnemy) > minAttackDistanceRadius && projectile != null && currEnemy != null) {
 
 			// find the direction, subtract target from source
 			var dir = currEnemy.transform.localPosition - transform.localPosition;
@@ -185,17 +206,20 @@ public class Tower : MonoBehaviour {
 
 		List<Enemy> enemiesInRange = new List<Enemy> ();
 
-		// loop through to find enemies within the towers attack radius
-		foreach (Enemy enemy in GameManager.Instance.EnemyList) {
+		if (GameManager.Instance.EnemyList.Count > 0) {
+			// loop through to find enemies within the towers attack radius
+			foreach (Enemy enemy in GameManager.Instance.EnemyList) {
 
-			// measure the distance
-			if (enemy != null && Vector2.Distance (transform.localPosition, enemy.transform.localPosition) <= attackDistanceRadius) {
+				float enemyTargetDistance = Vector2.Distance (transform.localPosition, enemy.transform.localPosition);
 
-				enemiesInRange.Add(enemy);
+				// measure the distance
+				if (enemy != null && enemyTargetDistance <= maxAttackDistanceRadius && enemyTargetDistance >= minAttackDistanceRadius) {
+
+					enemiesInRange.Add (enemy);
+				}
 			}
-			
 
-		}
+		} 
 
 		return enemiesInRange;
 
@@ -226,6 +250,20 @@ public class Tower : MonoBehaviour {
 
 
 		return nearestEnemy;
+
+	}
+
+
+	public void OnDrawGizmos ()
+	{
+		// Draw min radius
+		Gizmos.color = Color.blue;
+		Gizmos.DrawWireSphere(transform.position, minAttackDistanceRadius);
+
+		// Draw Max Radius
+		Gizmos.color = Color.red;
+		Gizmos.DrawWireSphere(transform.position, maxAttackDistanceRadius);
+
 
 	}
 

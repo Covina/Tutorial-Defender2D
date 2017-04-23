@@ -177,6 +177,7 @@ public class GameManager : Singleton<GameManager> {
 	// Update function
 	public void Update ()
 	{
+		// Drop the dragged tower
 		HandleEscapeKey();
 	}
 
@@ -216,12 +217,11 @@ public class GameManager : Singleton<GameManager> {
 			// spawn enemies
 			for (int i = 0; i < TotalEnemies; i++) {
 
+				// create the new enemy
 				GameObject newEnemy = Instantiate(enemies[ Random.Range(0,3) ]) as GameObject;
 
+				// place it at the starting spot
 				newEnemy.transform.position = spawnPoint.transform.position;
-
-				// add the new enemy to the list
-				RegisterEnemy(newEnemy.GetComponent<Enemy>());
 
 				// delay between spawns to space them out.
 				yield return new WaitForSeconds(spawnDelayTime);
@@ -251,8 +251,10 @@ public class GameManager : Singleton<GameManager> {
 
 
 	// Add the enemy to the List
-	public void RegisterEnemy (Enemy enemy)
+	public void RegisterEnemy (Enemy enemy, string sourceFunction)
 	{
+		Debug.Log("RegisterEnemy() Called from " + sourceFunction);
+
 		// add the enemy to the list
 		EnemyList.Add(enemy);
 
@@ -261,9 +263,13 @@ public class GameManager : Singleton<GameManager> {
 	// Remove the enemy to the List
 	public void UnregisterEnemy (Enemy enemy)
 	{
+		Debug.Log("UnregisterEnemy() Removing [" + enemy + "] :: Current EnemyList Count: [" + EnemyList.Count + "]");
+
 		// Remove the enemy to the list
 		EnemyList.Remove(enemy);
 		Destroy(enemy.gameObject);
+
+		Debug.Log("Destroy GameObject of [" + enemy + "] :: Current EnemyList Count: [" + EnemyList.Count + "]");
 	}
 
 
@@ -271,12 +277,22 @@ public class GameManager : Singleton<GameManager> {
 	public void DestroyAllEnemies ()
 	{
 
-		// loop through and destroy gameobjects
-		foreach (Enemy enemy in EnemyList) {
+//		Debug.Log("DestroyAllEnemies () :: SizeOf EnemyList [" + EnemyList.Count + "]");
+//
+//		// loop through and destroy gameobjects
+//		foreach (Enemy enemy in EnemyList) {
+//
+//			if (enemy.gameObject == null) {
+//				// do nothing
+//			} else {
+//				Destroy (enemy.gameObject);
+//			}
+//
+//		}
 
-			if (enemy.gameObject != null) {
-				Destroy (enemy.gameObject);
-			}
+		foreach (Enemy enemy in GameObject.FindObjectsOfType<Enemy>()) {
+
+			Destroy(enemy.gameObject);
 
 		}
 
@@ -321,6 +337,7 @@ public class GameManager : Singleton<GameManager> {
 
 		case GameStatus.PLAY:
 			actionButtonText.text = "Start Game";
+			NewGameSettings();
 			break;
 
 		case GameStatus.WIN:
@@ -450,6 +467,39 @@ public class GameManager : Singleton<GameManager> {
 			TowerManager.Instance.towerButtonPressed = null;
 
 		}
+
+	}
+
+
+
+	private void NewGameSettings() {
+
+		// reset the starting enemy count to 3
+		TotalEnemies = 3;
+
+		// zero the current wave
+		currentWave = 0;
+
+		// zero the round enemies killed
+		RoundEnemiesKilled = 0;
+
+		// zero the total enemies killed
+		TotalEnemiesKilled = 0;
+
+		// zero the round enemies escaped
+		RoundEscapedEnemies = 0;
+
+		// zero escaped enemies
+		totalEscapedEnemiesCount = 0;
+
+		// Set the money back to defult
+		CurrencyBalance = startingBalance;
+
+		// destroy all tower objects
+		TowerManager.Instance.DestroyAllTowers();
+
+		// rename all build sites so they are buildable again
+		TowerManager.Instance.RenameTagsBuildSites();
 
 	}
 

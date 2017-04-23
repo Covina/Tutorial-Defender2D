@@ -2,11 +2,11 @@
 
 public class TowerButton : MonoBehaviour {
 
-	[SerializeField] private GameObject towerObject;
+	[SerializeField] private Tower towerObject;
 
 	[SerializeField] private Sprite dragSprite;
 
-	public GameObject TowerObject {
+	public Tower TowerObject {
 
 		get	
 			{ return towerObject; }
